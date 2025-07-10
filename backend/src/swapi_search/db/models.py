@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, JSON, Index
+from sqlalchemy import Column, Integer, String, Text, JSON, Index, UniqueConstraint
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -6,7 +6,7 @@ Base = declarative_base()
 class SwapiResource(Base):
     """
     Represents a normalized resource from SWAPI, stored in a unified table.
-    This design simplifies search queries by avoiding complex joins.
+    This design simplifies search and browse queries by avoiding complex joins.
     """
     __tablename__ = "swapi_resource"
 
@@ -16,10 +16,6 @@ class SwapiResource(Base):
     name = Column(String(255), nullable=False)
     data = Column(JSON, nullable=False)
     searchable_text = Column(Text, nullable=False)
-    
-    data = Column(JSON, nullable=False)
-    
-    searchable_text = Column(Text, nullable=False)
 
     __table_args__ = (
         Index(
@@ -28,4 +24,7 @@ class SwapiResource(Base):
             postgresql_using="gin",
             postgresql_ops={"searchable_text": "gin_trgm_ops"},
         ),
+        # A unique index to quickly find a specific resource by its
+        # original ID and type. Also prevents duplicate data entries.
+        UniqueConstraint('type', 'swapi_id', name='uq_swapi_resource_type_swapi_id'),
     )
