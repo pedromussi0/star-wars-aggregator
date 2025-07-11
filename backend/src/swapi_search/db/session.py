@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 sync_engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True)
 SyncSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=sync_engine)
 
-# The FastAPI application is asynchronous, so it needs an asynchronous engine.
 async_engine = create_async_engine(settings.DATABASE_URL.replace("psycopg2", "asyncpg"))
 AsyncSessionLocal = sessionmaker(
     bind=async_engine, class_=AsyncSession, expire_on_commit=False

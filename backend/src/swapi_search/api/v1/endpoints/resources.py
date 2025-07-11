@@ -5,6 +5,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from swapi_search.db.models import SwapiResource
 from swapi_search.db.session import get_db
 from swapi_search.api.v1.schemas import PaginatedResponse
+from swapi_search.repositories.resource import ResourceRepository
+
+def get_resource_repository(db: AsyncSession = Depends(get_db)) -> ResourceRepository:
+    """Dependency injector for the ResourceRepository."""
+    return ResourceRepository(db_session=db)
 
 def resource_router_factory(
     resource_type: str,
@@ -13,10 +18,7 @@ def resource_router_factory(
 ) -> APIRouter:
     """
     A factory that generates a set of RESTful endpoints for a resource type.
-
-    This powerful pattern allows us to create complete CRUD-like APIs for
-    any resource ('films', 'people', etc.) with minimal code duplication.
-
+    
     Args:
         resource_type: The string name of the resource (e.g., 'films').
         response_model: The Pydantic model for the response.
@@ -34,7 +36,7 @@ def resource_router_factory(
         summary=f"Get a list of all {resource_type.capitalize()}"
     )
     async def get_all_resources(
-        db: AsyncSession = Depends(get_db),
+        repo: ResourceRepository = Depends(get_resource_repository),
         limit: int = Query(10, ge=1, le=100, description="Number of results to return."),
         offset: int = Query(0, ge=0, description="Offset for pagination."),
     ):
@@ -42,22 +44,10 @@ def resource_router_factory(
         Retrieves a paginated list of all resources of this type from the
         database, ordered by their original SWAPI ID.
         """
-        # A subquery to get the total count efficiently.
-        count_stmt = select(func.count(SwapiResource.id)).where(SwapiResource.type == resource_type)
-        total_count = (await db.execute(count_stmt)).scalar_one()
-
-        # The main query to fetch the paginated data.
-        stmt = (
-            select(SwapiResource.data)
-            .where(SwapiResource.type == resource_type)
-            .order_by(SwapiResource.swapi_id)
-            .limit(limit)
-            .offset(offset)
+        total_count = await repo.count_resources(resource_type=resource_type)
+        items = await repo.get_all_resources(
+            resource_type=resource_type, limit=limit, offset=offset
         )
-        result = await db.execute(stmt)
-        # We extract the JSON data from the first column of each row.
-        items = [row[0] for row in result.all()]
-
         return {
             "count": total_count,
             "limit": limit,
@@ -70,21 +60,21 @@ def resource_router_factory(
         response_model=DetailResponseModel,
         summary=f"Get a single {resource_type.capitalize()} by ID"
     )
-    async def get_single_resource(resource_id: int, db: AsyncSession = Depends(get_db)):
+    async def get_single_resource(
+        resource_id: int,
+        repo: ResourceRepository = Depends(get_resource_repository),
+    ):
         """
         Retrieves a single resource by its unique SWAPI ID for this type.
         """
-        stmt = select(SwapiResource.data).where(
-            SwapiResource.type == resource_type,
-            SwapiResource.swapi_id == resource_id
+        item = await repo.get_resource_by_id(
+            resource_type=resource_type, resource_id=resource_id
         )
-        result = (await db.execute(stmt)).scalar_one_or_none()
-
-        if result is None:
+        if item is None:
             raise HTTPException(
                 status_code=404,
                 detail=f"{resource_type.capitalize()} with ID {resource_id} not found"
             )
-        return result
+        return item
 
     return router

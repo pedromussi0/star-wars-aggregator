@@ -33,13 +33,8 @@ RESOURCE_CONFIG = {
     ResourceType.vehicles: schemas.VehicleResponse,
 }
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Application lifespan manager.
-    Handles startup and shutdown events, such as initializing database connections.
-    """
     logger.info("Application startup...")
     logger.info("Checking database connection...")
     await check_db_connection()
@@ -47,9 +42,6 @@ async def lifespan(app: FastAPI):
     logger.info("Closing database connection pool...")
     async_engine.dispose()
     logger.info("Application shutdown.")
-
-
-
 
 app = FastAPI(
     title="SWAPI Search Service",
@@ -83,8 +75,6 @@ for resource_type, response_model in RESOURCE_CONFIG.items():
         tag=resource_type.name.capitalize()
     )
     app.include_router(router, prefix=API_V1_PREFIX)
-
-
 
 @app.get("/health", tags=["Monitoring"])
 async def health_check():

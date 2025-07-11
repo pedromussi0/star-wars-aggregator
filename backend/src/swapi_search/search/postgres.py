@@ -25,7 +25,6 @@ class PostgresSearchEngine(BaseSearchEngine):
     ) -> List[Dict[str, Any]]:
         """
         Searches the swapi_resource table using a full-text search strategy.
-        A GIN index on 'searchable_text' is recommended for performance.
         """
         stmt = select(SwapiResource.data).where(
             SwapiResource.searchable_text.ilike(f"%{query}%")
