@@ -27,6 +27,8 @@ RUN poetry install --only=main --no-root
 # 6. Copy Application Code
 COPY ./src /app/src
 COPY ./scripts /app/scripts
+COPY ./alembic /app/alembic
+COPY ./alembic.ini /app/alembic.ini
 
 # 7. Expose Port and Run Application
 EXPOSE 8000

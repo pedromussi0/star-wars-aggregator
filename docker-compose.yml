@@ -1,24 +1,24 @@
 services:
+  # --- Backend Database Service ---
   db:
     image: postgres:15-alpine
     container_name: swapi_postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-swapi_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-swapi_password}
-      POSTGRES_DB: ${POSTGRES_DB:-swapi_db}
+    env_file: .env
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - "5432:5432" 
+      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U swapi_user -d swapi_db"]
       interval: 5s
       timeout: 5s
       retries: 5
 
+  # --- Backend API Service ---
   api:
-    build: .
     container_name: swapi_api
+    build:
+      context: ./backend
     env_file:
       - .env
     environment:
@@ -29,9 +29,22 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./src:/app/src
-      - ./scripts:/app/scripts
+      - ./backend/src:/app/src
+      - ./backend/scripts:/app/scripts
     command: uvicorn swapi_search.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # --- Frontend UI Service ---
+  frontend:
+    container_name: swapi_frontend
+    env_file: .env
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: http://localhost:8000/api/v1
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
 
 volumes:
   postgres_data:
