@@ -2,9 +2,10 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { AppLayout } from '@/shared/components/layout/AppLayout';
 import { FilmDetailsPage } from '@/features/films/pages/FilmDetailsPage';
 import { FilmListPage } from '@/features/films/pages/FilmListPage';
-import { SearchPage } from '@/features/search/pages/SearchPage'; // 
+import { SearchPage } from '@/features/search/pages/SearchPage'; 
 import { PeopleListPage } from '@/features/people/pages/PeopleListPage';
 import { PersonDetailsPage } from '@/features/people/pages/PersonDetailsPage';
+import { BrowsePage } from '@/features/browse/pages/BrowsePage'; 
 
 
 const router = createBrowserRouter([
@@ -19,6 +20,10 @@ const router = createBrowserRouter([
       {
         path: 'search', 
         element: <SearchPage />,
+      },
+      {
+        path: 'browse', 
+        element: <BrowsePage />,
       },
       {
         path: 'films',

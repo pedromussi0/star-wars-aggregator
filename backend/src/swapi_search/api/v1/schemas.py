@@ -182,3 +182,44 @@ class VehicleResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class FilmFilters(BaseModel):
+    """
+    Defines the allowable filter parameters for the /films endpoint.
+    Using a Pydantic model for filters provides automatic validation
+    and a clean dependency in the endpoint signature.
+    
+    All fields are Optional, so users can provide any combination of filters.
+    """
+    director: Optional[str] = Field(None, description="Filter by director name (case-insensitive, partial match).")
+    producer: Optional[str] = Field(None, description="Filter by producer name (case-insensitive, partial match).")
+
+class PersonFilters(BaseModel):
+    """Filter parameters for the /people endpoint."""
+    name: Optional[str] = Field(None, description="Filter by person's name (case-insensitive, partial match).")
+    gender: Optional[str] = Field(None, description="Filter by gender (e.g., 'male', 'female').")
+    homeworld: Optional[str] = Field(None, description="Filter by the name of the person's homeworld.")
+
+class PlanetFilters(BaseModel):
+    """Filter parameters for the /planets endpoint."""
+    name: Optional[str] = Field(None, description="Filter by planet's name (case-insensitive, partial match).")
+    climate: Optional[str] = Field(None, description="Filter by climate type (e.g., 'arid', 'temperate').")
+    terrain: Optional[str] = Field(None, description="Filter by terrain type (e.g., 'desert', 'forest').")
+
+class SpeciesFilters(BaseModel):
+    """Filter parameters for the /species endpoint."""
+    name: Optional[str] = Field(None, description="Filter by species' name (case-insensitive, partial match).")
+    classification: Optional[str] = Field(None, description="Filter by classification (e.g., 'mammal', 'reptile').")
+    language: Optional[str] = Field(None, description="Filter by the species' language.")
+
+class StarshipFilters(BaseModel):
+    """Filter parameters for the /starships endpoint."""
+    name: Optional[str] = Field(None, description="Filter by starship's name (case-insensitive, partial match).")
+    manufacturer: Optional[str] = Field(None, description="Filter by manufacturer.")
+    starship_class: Optional[str] = Field(None, description="Filter by starship class (e.g., 'Starfighter').")
+
+class VehicleFilters(BaseModel):
+    """Filter parameters for the /vehicles endpoint."""
+    name: Optional[str] = Field(None, description="Filter by vehicle's name (case-insensitive, partial match).")
+    manufacturer: Optional[str] = Field(None, description="Filter by manufacturer.")
+    vehicle_class: Optional[str] = Field(None, description="Filter by vehicle class (e.g., 'wheeled').")

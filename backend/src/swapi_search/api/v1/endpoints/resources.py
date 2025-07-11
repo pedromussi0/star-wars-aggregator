@@ -1,5 +1,6 @@
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
-
+from pydantic import BaseModel
 from swapi_search.api.v1.dependencies import get_resource_repository
 from swapi_search.api.v1.schemas import PaginatedResponse
 from swapi_search.repositories.resource import ResourceRepository
@@ -8,6 +9,7 @@ from swapi_search.repositories.resource import ResourceRepository
 def resource_router_factory(
     resource_type: str,
     response_model: type,
+    filters_model: Optional[type[BaseModel]],
     tag: str,
 ) -> APIRouter:
     """
@@ -35,6 +37,7 @@ def resource_router_factory(
     )
     async def get_all_resources(
         repo: ResourceRepository = Depends(get_resource_repository),
+        filters: BaseModel = Depends(filters_model) if filters_model else None,
         limit: int = Query(
             10, ge=1, le=100, description="Number of results to return."
         ),
@@ -44,9 +47,12 @@ def resource_router_factory(
         Retrieves a paginated list of all resources of this type from the
         database, ordered by their original SWAPI ID.
         """
-        total_count = await repo.count_resources(resource_type=resource_type)
+        filter_dict = filters.model_dump(exclude_unset=True) if filters else {}        
+
+        
+        total_count = await repo.count_resources(resource_type=resource_type, filters=filter_dict)
         items = await repo.get_all_resources(
-            resource_type=resource_type, limit=limit, offset=offset
+            resource_type=resource_type, limit=limit, offset=offset, filters=filter_dict,
         )
 
         return {
