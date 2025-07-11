@@ -1,24 +1,22 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import select, func
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from swapi_search.db.models import SwapiResource
-from swapi_search.db.session import get_db
+from swapi_search.api.v1.dependencies import get_resource_repository
 from swapi_search.api.v1.schemas import PaginatedResponse
 from swapi_search.repositories.resource import ResourceRepository
 
-def get_resource_repository(db: AsyncSession = Depends(get_db)) -> ResourceRepository:
-    """Dependency injector for the ResourceRepository."""
-    return ResourceRepository(db_session=db)
 
 def resource_router_factory(
     resource_type: str,
     response_model: type,
-    tag: str
+    tag: str,
 ) -> APIRouter:
     """
     A factory that generates a set of RESTful endpoints for a resource type.
-    
+
+    This powerful pattern allows us to create complete browse and detail APIs for
+    any resource ('films', 'people', etc.) with minimal code duplication. It
+    relies on a repository for data access, which is injected as a dependency.
+
     Args:
         resource_type: The string name of the resource (e.g., 'films').
         response_model: The Pydantic model for the response.
@@ -33,11 +31,13 @@ def resource_router_factory(
     @router.get(
         "",
         response_model=PaginatedResponse[DetailResponseModel],
-        summary=f"Get a list of all {resource_type.capitalize()}"
+        summary=f"Get a list of all {resource_type.capitalize()}",
     )
     async def get_all_resources(
         repo: ResourceRepository = Depends(get_resource_repository),
-        limit: int = Query(10, ge=1, le=100, description="Number of results to return."),
+        limit: int = Query(
+            10, ge=1, le=100, description="Number of results to return."
+        ),
         offset: int = Query(0, ge=0, description="Offset for pagination."),
     ):
         """
@@ -48,6 +48,7 @@ def resource_router_factory(
         items = await repo.get_all_resources(
             resource_type=resource_type, limit=limit, offset=offset
         )
+
         return {
             "count": total_count,
             "limit": limit,
@@ -58,7 +59,7 @@ def resource_router_factory(
     @router.get(
         "/{resource_id}",
         response_model=DetailResponseModel,
-        summary=f"Get a single {resource_type.capitalize()} by ID"
+        summary=f"Get a single {resource_type.capitalize()} by ID",
     )
     async def get_single_resource(
         resource_id: int,
@@ -70,10 +71,11 @@ def resource_router_factory(
         item = await repo.get_resource_by_id(
             resource_type=resource_type, resource_id=resource_id
         )
+
         if item is None:
             raise HTTPException(
                 status_code=404,
-                detail=f"{resource_type.capitalize()} with ID {resource_id} not found"
+                detail=f"{resource_type.capitalize()} with ID {resource_id} not found",
             )
         return item
 
