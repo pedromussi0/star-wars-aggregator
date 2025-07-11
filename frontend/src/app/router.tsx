@@ -1,11 +1,12 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { AppLayout } from '@/shared/components/layout/AppLayout';
-import { FilmDetailsPage } from '@/features/films/pages/FilmDetailsPage';
-import { FilmListPage } from '@/features/films/pages/FilmListPage';
+// import { FilmDetailsPage } from '@/features/films/pages/FilmDetailsPage';
+// import { FilmListPage } from '@/features/films/pages/FilmListPage';
 import { SearchPage } from '@/features/search/pages/SearchPage'; 
-import { PeopleListPage } from '@/features/people/pages/PeopleListPage';
-import { PersonDetailsPage } from '@/features/people/pages/PersonDetailsPage';
+// import { PeopleListPage } from '@/features/people/pages/PeopleListPage';
+// import { PersonDetailsPage } from '@/features/people/pages/PersonDetailsPage';
 import { BrowsePage } from '@/features/browse/pages/BrowsePage'; 
+import { ResourceDetailsPage } from '@/features/resource-details/pages/ResourceDetailsPage';
 
 
 const router = createBrowserRouter([
@@ -26,21 +27,25 @@ const router = createBrowserRouter([
         element: <BrowsePage />,
       },
       {
-        path: 'films',
-        element: <FilmListPage />,
+        path: 'browse/:category/:id',
+        element: <ResourceDetailsPage />,
       },
-      {
-        path: 'films/:id',
-        element: <FilmDetailsPage />,
-      },
-      {
-        path: 'people',
-        element: <PeopleListPage />,
-      },
-      {
-        path: 'people/:id',
-        element: <PersonDetailsPage />,
-      },
+    //   {
+    //     path: 'films',
+    //     element: <FilmListPage />,
+    //   },
+    //   {
+    //     path: 'films/:id',
+    //     element: <FilmDetailsPage />,
+    //   },
+    //   {
+    //     path: 'people',
+    //     element: <PeopleListPage />,
+    //   },
+    //   {
+    //     path: 'people/:id',
+    //     element: <PersonDetailsPage />,
+    //   },
     ],
   },
 ]);

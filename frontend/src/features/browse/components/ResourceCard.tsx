@@ -53,7 +53,7 @@ export function ResourceCard({ resource, category }: ResourceCardProps) {
   const details = getResourceDetails(resource, category);
 
   return (
-    <Card to={`/${category}/${id}`}>
+    <Card to={`/browse/${category}/${id}`}>
       <Card.Title>{title}</Card.Title>
       <Card.Body>
         <p className="text-gray-400 truncate">{details.primary}</p>

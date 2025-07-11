@@ -3,11 +3,9 @@ import { apiClient } from '@/shared/api/client';
 import { extractIdFromUrl } from '@/shared/lib/utils';
 import type { SearchApiResponse, SearchResultItem, UnifiedSearchResult } from '../types';
 
-// This transformer function is the key.
-// It converts the complex API data model into a simple presentation model.
 const transformToUnifiedResult = (item: SearchResultItem): UnifiedSearchResult => {
   const resourceType = item.type;
-  const url = `/${resourceType}/${extractIdFromUrl(item.url)}`;
+  const url = `/browse/${resourceType}/${extractIdFromUrl(item.url)}`;
   let title = '';
   const summary: Record<string, string> = {};
 
@@ -58,7 +56,6 @@ const searchAll = async (query: string): Promise<UnifiedSearchResult[]> => {
 export function useSearch(query: string) {
   return useQuery({
     queryKey: ['search', query],
-    // The query function now returns our clean, unified model
     queryFn: () => searchAll(query),
     enabled: !!query,
   });
