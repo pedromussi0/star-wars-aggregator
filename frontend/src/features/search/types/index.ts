@@ -106,7 +106,6 @@ export interface VehicleResult extends BaseSearchResult {
   films: string[];
 }
 
-// The complete discriminated union with all possible result types
 export type SearchResultItem =
   | FilmResult
   | PersonResult
@@ -128,3 +127,10 @@ export type SearchParams = {
   limit?: number;
   offset?: number;
 };
+
+export interface UnifiedSearchResult {
+    resourceType: ResourceType;
+    title: string;
+    url: string; 
+    summary: Record<string, string>;
+  }

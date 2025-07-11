@@ -1,17 +1,65 @@
 import { useQuery } from '@tanstack/react-query';
-import { apiClient } from '@/lib/axios';
-import { type SearchApiResponse, type SearchParams } from '../types';
+import { apiClient } from '@/shared/api/client';
+import { extractIdFromUrl } from '@/shared/lib/utils';
+import type { SearchApiResponse, SearchResultItem, UnifiedSearchResult } from '../types';
 
-const searchSwapi = async (params: SearchParams): Promise<SearchApiResponse> => {
-  const { data } = await apiClient.get('/search', { params }); 
-  return data;
+// This transformer function is the key.
+// It converts the complex API data model into a simple presentation model.
+const transformToUnifiedResult = (item: SearchResultItem): UnifiedSearchResult => {
+  const resourceType = item.type;
+  const url = `/${resourceType}/${extractIdFromUrl(item.url)}`;
+  let title = '';
+  const summary: Record<string, string> = {};
+
+  switch (item.type) {
+    case 'films':
+      title = item.title;
+      summary['Director'] = item.director;
+      summary['Release Date'] = item.release_date;
+      break;
+    case 'people':
+      title = item.name;
+      summary['Birth Year'] = item.birth_year;
+      summary['Gender'] = item.gender;
+      break;
+    case 'planets':
+      title = item.name;
+      summary['Climate'] = item.climate;
+      summary['Population'] = item.population;
+      break;
+    case 'species':
+      title = item.name;
+      summary['Classification'] = item.classification;
+      summary['Language'] = item.language;
+      break;
+    case 'starships':
+      title = item.name;
+      summary['Model'] = item.model;
+      summary['Class'] = item.starship_class;
+      break;
+    case 'vehicles':
+      title = item.name;
+      summary['Model'] = item.model;
+      summary['Class'] = item.vehicle_class;
+      break;
+  }
+
+  return { resourceType, title, url, summary };
 };
 
-export const useSearch = (params: SearchParams) => {
+const searchAll = async (query: string): Promise<UnifiedSearchResult[]> => {
+  if (!query) return [];
+  // The API response is typed with your detailed SearchApiResponse
+  const { data } = await apiClient.get<SearchApiResponse>(`/search?q=${query}`);
+  // We map over the results and transform each one
+  return data.results.map(transformToUnifiedResult);
+};
+
+export function useSearch(query: string) {
   return useQuery({
-
-    queryKey: ['search', params],
-    queryFn: () => searchSwapi(params),
-    enabled: !!params.q,
+    queryKey: ['search', query],
+    // The query function now returns our clean, unified model
+    queryFn: () => searchAll(query),
+    enabled: !!query,
   });
-};
+}
