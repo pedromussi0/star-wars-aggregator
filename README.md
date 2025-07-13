@@ -30,6 +30,9 @@ Para complementar a busca, foram criados endpoints RESTful dedicados para cada t
 
 **Decisão Arquitetural:** Para oferecer uma experiência de exploração rica, os endpoints de navegação suportam filtragem dinâmica do lado do servidor. É possível combinar múltiplos filtros através de query parameters (ex: `/api/v1/films?director=lucas&producer=kurtz`). Isso permite que o frontend construa interfaces de filtro complexas sem a necessidade de buscar e filtrar grandes volumes de dados no lado do cliente.
 
+<img width="1894" height="888" alt="image" src="https://github.com/user-attachments/assets/f464f79e-ce47-4d0f-9655-224307ceb4ad" />
+
+
 ### Segurança e Controle de Tráfego
 
 **Decisão Arquitetural:** A API implementa rate limiting (limitação de taxa de requisições) na camada de borda (API Gateway). Isso protege o sistema contra abuso, controla custos e garante a estabilidade do serviço.
