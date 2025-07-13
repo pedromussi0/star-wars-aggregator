@@ -57,6 +57,9 @@ O backend segue uma clara separação de responsabilidades em camadas:
 - **API Gateway:** Atua como a "porta de entrada" da API, gerenciando o roteamento, a segurança e o rate limiting.
 - **AWS RDS (PostgreSQL):** Fornece um banco de dados relacional gerenciado, seguro e escalável.
 - **AWS VPC e VPC Endpoints:** A infraestrutura de rede foi projetada para segurança, mantendo o banco de dados privado e permitindo que o Lambda acesse outros serviços da AWS (como o Secrets Manager) de forma segura, sem exposição à internet.
+- 
+<img width="570" height="857" alt="image" src="https://github.com/user-attachments/assets/a9f587d1-45fd-4aa2-b5b7-b2d9c0266140" />
+
 
 ### Gerenciamento de Segredos
 
