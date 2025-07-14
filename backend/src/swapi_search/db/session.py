@@ -1,5 +1,3 @@
-# src/swapi_search/db/session.py
-
 import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
