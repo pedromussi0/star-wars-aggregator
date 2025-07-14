@@ -4,6 +4,8 @@
 
 **Busca real na DB:** [https://u7xzgkjho0.execute-api.sa-east-1.amazonaws.com/api/v1/search?q=luke](https://u7xzgkjho0.execute-api.sa-east-1.amazonaws.com/api/v1/search?q=luke)
 
+**Documentação da API (swagger):** [https://u7xzgkjho0.execute-api.sa-east-1.amazonaws.com/docs](https://u7xzgkjho0.execute-api.sa-east-1.amazonaws.com/docs)
+
 Este documento descreve a arquitetura, as funcionalidades e as decisões estratégicas por trás do SWAPI Search Service, um backend robusto e escalável para ingestão e consulta de dados do universo Star Wars.
 
 ## Visão Geral do Projeto
