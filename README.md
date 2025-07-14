@@ -1,5 +1,9 @@
 # Documentação do Projeto: SWAPI Search Service
 
+**URL Base da API:** [https://u7xzgkjho0.execute-api.sa-east-1.amazonaws.com/health](https://u7xzgkjho0.execute-api.sa-east-1.amazonaws.com/health)
+
+**Busca real na DB:** [https://u7xzgkjho0.execute-api.sa-east-1.amazonaws.com/api/v1/search?q=luke](https://u7xzgkjho0.execute-api.sa-east-1.amazonaws.com/api/v1/search?q=luke)
+
 Este documento descreve a arquitetura, as funcionalidades e as decisões estratégicas por trás do SWAPI Search Service, um backend robusto e escalável para ingestão e consulta de dados do universo Star Wars.
 
 ## Visão Geral do Projeto
@@ -53,18 +57,18 @@ O backend segue uma clara separação de responsabilidades em camadas:
 
 **Decisão Arquitetural:** A aplicação é implantada em um ambiente serverless para máxima escalabilidade e otimização de custos.
 
-- **AWS Lambda:** Executa o código da aplicação FastAPI sem a necessidade de gerenciar servidores.
+- **AWS Lambda:** Executa o código da aplicação FastAPI sem a necessidade de gerenciar servidores. O pacote de implantação, contendo o código e todas as dependências, é criado de forma automatizada e consistente usando um Dockerfile multi-stage.
+
 - **API Gateway:** Atua como a "porta de entrada" da API, gerenciando o roteamento, a segurança e o rate limiting.
+
 - **AWS RDS (PostgreSQL):** Fornece um banco de dados relacional gerenciado, seguro e escalável.
-- **AWS VPC e VPC Endpoints:** A infraestrutura de rede foi projetada para segurança, mantendo o banco de dados privado e permitindo que o Lambda acesse outros serviços da AWS (como o Secrets Manager) de forma segura, sem exposição à internet.
-- 
-<img width="570" height="857" alt="image" src="https://github.com/user-attachments/assets/a9f587d1-45fd-4aa2-b5b7-b2d9c0266140" />
 
+#### Amazon S3 para Artefatos
 
-### Gerenciamento de Segredos
+**Decisão Arquitetural:** O AWS Lambda possui um limite de tamanho para pacotes de código enviados diretamente. Para acomodar aplicações complexas com muitas dependências, o método de implantação padrão da indústria é utilizar um bucket S3 como intermediário. Nosso pipeline de implantação automatizado faz o upload do pacote .zip da aplicação para um bucket S3 privado e, em seguida, instrui o Lambda a buscar o código a partir dessa localização. Isso aumenta o limite de tamanho e otimiza a velocidade de deploy.
 
-**Decisão Arquitetural:** As credenciais do banco de dados não são armazenadas em variáveis de ambiente. Elas são gerenciadas de forma segura pelo AWS Secrets Manager, e o Lambda obtém permissão para lê-las através de uma IAM Role, seguindo as melhores práticas de segurança na nuvem.
+#### AWS VPC e VPC Endpoints
 
-## Conclusão
+**Decisão Arquitetural:** A segurança é um pilar central. A infraestrutura de rede foi projetada para manter o banco de dados e o Lambda em uma rede privada (VPC), isolados da internet pública. Para permitir que o Lambda acesse outros serviços da AWS (como o Secrets Manager para buscar as credenciais do banco), foram configurados VPC Endpoints. Eles criam um túnel de comunicação privado e seguro entre o Lambda e os serviços AWS, garantindo que nenhum dado sensível trafegue pela internet.
+<img width="832" height="846" alt="image" src="https://github.com/user-attachments/assets/b07f3c35-21c8-40b2-b724-330f23697661" />
 
-Esta combinação de funcionalidades e decisões arquiteturais resulta em um sistema robusto, seguro e preparado para crescer, servindo como uma base sólida para qualquer aplicação frontend que precise consumir e explorar os dados do universo Star Wars.
