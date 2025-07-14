@@ -1,35 +1,36 @@
-# 1. Base Image
-FROM python:3.11-slim
+# ==============================================================================
+# Final Dockerfile for Building a Self-Contained Lambda Package (v2)
+# ==============================================================================
 
-# 2. Set Environment Variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-ENV POETRY_NO_INTERACTION 1
-ENV POETRY_VIRTUALENVS_CREATE false
-ENV POETRY_HOME="/opt/poetry"
-ENV PATH="/opt/poetry/bin:$PATH"
-ENV PYTHONPATH="/app/src:$PYTHONPATH"
+# --- Stage 1: The Builder ---
+    FROM python:3.11-slim as builder
 
-# 3. Install Poetry
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y curl \
-    && curl -sSL https://install.python-poetry.org | python - \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# 4. Set Working Directory
-WORKDIR /app
-
-# 5. Install Dependencies
-COPY pyproject.toml poetry.lock ./
-RUN poetry install --only=main --no-root
-
-# 6. Copy Application Code
-COPY ./src /app/src
-COPY ./scripts /app/scripts
-COPY ./alembic /app/alembic
-COPY ./alembic.ini /app/alembic.ini
-
-# 7. Expose Port and Run Application
-EXPOSE 8000
-CMD ["uvicorn", "swapi_search.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ENV POETRY_NO_INTERACTION=1 \
+        POETRY_VIRTUALENVS_CREATE=false
+    
+    RUN pip install poetry
+    WORKDIR /app
+    COPY ./backend/pyproject.toml ./backend/poetry.lock ./
+    RUN poetry install --only main --no-root
+    
+    
+    # --- Stage 2: The Final Package ---
+    FROM python:3.11-slim
+    
+    RUN apt-get update && apt-get install -y zip && rm -rf /var/lib/apt/lists/*
+    
+    WORKDIR /var/task
+    
+    # Copy dependencies from the builder stage
+    COPY --from=builder /usr/local/lib/python3.11/site-packages/ .
+    
+    # === THIS IS THE CRITICAL FIX ===
+    # Copy your application package directly to the root of the task directory.
+    COPY ./backend/src/swapi_search ./swapi_search
+    
+    # Copy other necessary files like alembic
+    COPY ./backend/alembic ./alembic
+    COPY ./backend/alembic.ini .
+    
+    # Zip the entire contents of the working directory
+    RUN zip -r /tmp/deployment.zip .

@@ -1,3 +1,5 @@
+# src/swapi_search/db/session.py
+
 import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -9,10 +11,11 @@ from swapi_search.core.config import settings
 logger = logging.getLogger(__name__)
 
 # The SWAPI ETL script is synchronous, so it needs a synchronous engine.
-sync_engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True)
+sync_engine = create_engine(str(settings.DATABASE_URL), pool_pre_ping=True)
 SyncSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=sync_engine)
 
-async_engine = create_async_engine(settings.DATABASE_URL.replace("psycopg2", "asyncpg"))
+# Use the new ASYNC_DATABASE_URL computed field for the async engine
+async_engine = create_async_engine(settings.ASYNC_DATABASE_URL)
 AsyncSessionLocal = sessionmaker(
     bind=async_engine, class_=AsyncSession, expire_on_commit=False
 )
