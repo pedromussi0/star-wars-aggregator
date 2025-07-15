@@ -1,11 +1,5 @@
 # Documentação do Projeto: SWAPI Search Service
 
-**URL Base da API:** [https://u7xzgkjho0.execute-api.sa-east-1.amazonaws.com/health](https://u7xzgkjho0.execute-api.sa-east-1.amazonaws.com/health)
-
-**Busca real na DB:** [https://u7xzgkjho0.execute-api.sa-east-1.amazonaws.com/api/v1/search?q=luke](https://u7xzgkjho0.execute-api.sa-east-1.amazonaws.com/api/v1/search?q=luke)
-
-**Documentação da API (swagger):** [https://u7xzgkjho0.execute-api.sa-east-1.amazonaws.com/docs](https://u7xzgkjho0.execute-api.sa-east-1.amazonaws.com/docs)
-
 Este documento descreve a arquitetura, as funcionalidades e as decisões estratégicas por trás do SWAPI Search Service, um backend robusto e escalável para ingestão e consulta de dados do universo Star Wars.
 
 ## Visão Geral do Projeto
@@ -26,6 +20,9 @@ Um script de linha de comando (`run_etl.py`) orquestra um processo completo de E
 
 Um único endpoint `GET /api/v1/search` permite buscas textuais (case-insensitive e parciais) em todos os tipos de recursos simultaneamente.
 
+**Execução da API de Busca no Postman:**
+<img width="957" height="754" alt="image" src="https://github.com/user-attachments/assets/33fb5b96-2443-479b-935c-c1475ce4b0d8" />
+
 **Decisão Arquitetural:** A busca implementa um sistema de ranking de relevância, priorizando resultados onde o termo de busca corresponde ao nome ou título do recurso. Isso garante uma experiência de usuário mais intuitiva.
 
 ### Navegação Estruturada (Browse API)
@@ -37,6 +34,10 @@ Para complementar a busca, foram criados endpoints RESTful dedicados para cada t
 **Decisão Arquitetural:** Para oferecer uma experiência de exploração rica, os endpoints de navegação suportam filtragem dinâmica do lado do servidor. É possível combinar múltiplos filtros através de query parameters (ex: `/api/v1/films?director=lucas&producer=kurtz`). Isso permite que o frontend construa interfaces de filtro complexas sem a necessidade de buscar e filtrar grandes volumes de dados no lado do cliente.
 
 <img width="1894" height="888" alt="image" src="https://github.com/user-attachments/assets/f464f79e-ce47-4d0f-9655-224307ceb4ad" />
+
+**Uso da API com filtros no Postman:**
+<img width="884" height="693" alt="image" src="https://github.com/user-attachments/assets/f12f911a-f22d-407e-935a-515f6ae7ae9d" />
+
 
 
 ### Segurança e Controle de Tráfego
